@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Users } from 'lucide-react'
 import FormAfericao from '../components/FormAfericao.jsx'
 import ListaAfericoes from '../components/ListaAfericoes.jsx'
-import Card from './components/ui/Card.jsx'
+import Card from '../components/ui/Card.jsx'
 import EstadoVazio from '../components/ui/EstadoVazio.jsx'
 
 export default function Afericoes({

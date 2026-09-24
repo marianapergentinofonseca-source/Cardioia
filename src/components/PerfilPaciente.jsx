@@ -1,9 +1,9 @@
 import { analisarPerfil } from '../utils/analisarPerfil.js'
 import { classificarPressao } from '../utils/classificarPressao.js'
 import { formatarData, rotuloContexto } from '../utils/formatar.js'
-import Card from '/ui/Card.jsx'
+import Card from './ui/Card.jsx'
 import EstadoVazio from './ui/EstadoVazio.jsx'
-import Selo from '/ui/Selo.jsx'
+import Selo from './ui/Selo.jsx'
 import { Clock } from 'lucide-react'
 
 export default function PerfilPaciente({ paciente, afericoes }) {

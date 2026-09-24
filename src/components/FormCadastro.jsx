@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { UserPlus } from 'lucide-react'
 import Botao from './ui/Botao.jsx'
-import Campo from '/ui/Campo.jsx'
+import Campo from './ui/Campo.jsx'
 
 const formInicial = {
   nome: '',

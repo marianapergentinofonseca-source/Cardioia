@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Users } from 'lucide-react'
 import PerfilPaciente from '../components/PerfilPaciente.jsx'
-import Card from './components/ui/Card.jsx'
+import Card from '../components/ui/Card.jsx'
 import EstadoVazio from '../components/ui/EstadoVazio.jsx'
 
 export default function Perfil({ paciente, afericoes }) {
