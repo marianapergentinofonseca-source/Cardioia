@@ -21,7 +21,7 @@ export function analisarPerfil(afericoes) {
       rotulo: 'Cuidados médicos',
       nivel: 'crise',
       texto:
-        'A última aferição chegou em faixa de crise (educacional: sistólica >= 180 ou diastólica >= 120). Oriente busca de atendimento. Isto não é diagnóstico.',
+        'A última aferição chegou em faixa de crise (educacional: sistólica ≥ 180 ou diastólica ≥ 120). Oriente busca de atendimento. Isto não é diagnóstico.',
     }
   }
 
@@ -64,4 +64,3 @@ export function analisarPerfil(afericoes) {
     texto: 'As medições registradas, neste recorte educacional, não indicam crise. Continue isolando os dados por paciente e anotando o horário.',
   }
 }
-

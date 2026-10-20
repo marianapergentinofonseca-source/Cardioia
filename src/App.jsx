@@ -1,19 +1,40 @@
 import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
+import RotaProtegida from './components/RotaProtegida.jsx'
 import Home from './pages/Home.jsx'
 import Pacientes from './pages/Pacientes.jsx'
 import Afericoes from './pages/Afericoes.jsx'
 import Perfil from './pages/Perfil.jsx'
-import { lerEstado, salvarEstado } from './utils/storage.js'
+import Login from './pages/Login.jsx'
+import Cadastro from './pages/Cadastro.jsx'
+import {
+  atualizarPaciente,
+  cadastrarUsuario as apiCadastrarUsuario,
+  carregarEstado,
+  criarAfericao,
+  criarPaciente,
+  entrar as apiEntrar,
+  removerAfericao as apiRemoverAfericao,
+  removerPaciente as apiRemoverPaciente,
+  sair as apiSair,
+  selecionarPaciente,
+} from './api/cardioiaApi.js'
 import './App.css'
 
 export default function App() {
-  const [inicial] = useState(lerEstado)
-  const [pagina, setPagina] = useState('inicio')
+  const [inicial] = useState(carregarEstado)
+  const [usuarios, setUsuarios] = useState(inicial.usuarios)
+  const [sessaoUsuarioId, setSessaoUsuarioId] = useState(inicial.sessaoUsuarioId)
   const [pacientes, setPacientes] = useState(inicial.pacientes)
   const [pacienteAtualId, setPacienteAtualId] = useState(inicial.pacienteAtualId)
   const [afericoes, setAfericoes] = useState(inicial.afericoes)
 
+  const navigate = useNavigate()
+  const local = useLocation()
+
+  const usuarioAtual = usuarios.find((item) => item.id === sessaoUsuarioId) ?? null
+  const logado = Boolean(usuarioAtual)
   const pacienteAtual = pacientes.find((item) => item.id === pacienteAtualId) ?? null
   const afericoesDoPaciente = afericoes.filter(
     (item) => item.pacienteId === pacienteAtualId,
@@ -21,88 +42,136 @@ export default function App() {
 
   useEffect(() => {
     const titulos = {
-      inicio: 'CardioIA',
-      pacientes: 'Pacientes | CardioIA',
-      afericoes: 'Aferições | CardioIA',
-      perfil: 'Perfil | CardioIA',
+      '/': 'CardioIA',
+      '/pacientes': 'Pacientes | CardioIA',
+      '/afericoes': 'Aferições | CardioIA',
+      '/perfil': 'Perfil | CardioIA',
+      '/login': 'Entrar | CardioIA',
+      '/cadastro': 'Criar acesso | CardioIA',
     }
-    document.title = titulos[pagina] ?? 'CardioIA'
-  }, [pagina])
+    document.title = titulos[local.pathname] ?? 'CardioIA'
+  }, [local.pathname])
 
-  useEffect(() => {
-    salvarEstado({ pacientes, pacienteAtualId, afericoes })
-  }, [pacientes, pacienteAtualId, afericoes])
+  function aplicar(estado) {
+    setUsuarios(estado.usuarios)
+    setSessaoUsuarioId(estado.sessaoUsuarioId)
+    setPacientes(estado.pacientes)
+    setPacienteAtualId(estado.pacienteAtualId)
+    setAfericoes(estado.afericoes)
+  }
+
+  function cadastrarUsuario(dados) {
+    const resultado = apiCadastrarUsuario(dados)
+    if (!resultado.ok) return resultado
+    aplicar(resultado.estado)
+    navigate('/')
+    return { ok: true }
+  }
+
+  function entrar(dados) {
+    const resultado = apiEntrar(dados)
+    if (!resultado.ok) return resultado
+    aplicar(resultado.estado)
+    navigate('/')
+    return { ok: true }
+  }
+
+  function sair() {
+    aplicar(apiSair())
+    navigate('/login')
+  }
 
   function salvarPaciente(dados) {
-    const novo = {
-      id: crypto.randomUUID(),
-      ...dados,
-      criadoEm: new Date().toISOString(),
-    }
+    aplicar(criarPaciente(dados))
+  }
 
-    setPacientes((prev) => [novo, ...prev])
-    setPacienteAtualId(novo.id)
+  function editarPaciente(id, dados) {
+    aplicar(atualizarPaciente(id, dados))
+  }
+
+  function removerPaciente(id) {
+    aplicar(apiRemoverPaciente(id))
+  }
+
+  function escolherPaciente(id) {
+    aplicar(selecionarPaciente(id))
   }
 
   function salvarAfericao(dados) {
-    if (!pacienteAtualId) return
-
-    const nova = {
-      id: crypto.randomUUID(),
-      pacienteId: pacienteAtualId,
-      ...dados,
-      registradoEm: new Date().toISOString(),
-    }
-
-    setAfericoes((prev) => [nova, ...prev])
+    aplicar(criarAfericao(dados))
   }
 
   function removerAfericao(id) {
-    setAfericoes((prev) => prev.filter((item) => item.id !== id))
+    aplicar(apiRemoverAfericao(id))
   }
 
   return (
-    <Layout
-      paginaAtual={pagina}
-      onNavegar={setPagina}
-      pacienteAtual={pacienteAtual}
-    >
-      {pagina === 'inicio' && (
-        <Home
-          totalPacientes={pacientes.length}
-          totalAfericoes={afericoes.length}
-          pacienteAtual={pacienteAtual}
-          onIrPacientes={() => setPagina('pacientes')}
-          onIrAfericoes={() => setPagina('afericoes')}
+    <Routes>
+      <Route
+        path="/login"
+        element={logado ? <Navigate to="/" replace /> : <Login onEntrar={entrar} />}
+      />
+      <Route
+        path="/cadastro"
+        element={
+          logado ? <Navigate to="/" replace /> : <Cadastro onCadastrar={cadastrarUsuario} />
+        }
+      />
+      <Route
+        element={
+          <RotaProtegida logado={logado}>
+            <Layout
+              usuario={usuarioAtual}
+              pacienteAtual={pacienteAtual}
+              onSair={sair}
+            />
+          </RotaProtegida>
+        }
+      >
+        <Route
+          path="/"
+          element={
+            <Home
+              usuario={usuarioAtual}
+              totalPacientes={pacientes.length}
+              totalAfericoes={afericoes.length}
+              pacienteAtual={pacienteAtual}
+            />
+          }
         />
-      )}
-      {pagina === 'pacientes' && (
-        <Pacientes
-          pacientes={pacientes}
-          pacienteAtualId={pacienteAtualId}
-          afericoes={afericoes}
-          onSalvar={salvarPaciente}
-          onSelecionar={setPacienteAtualId}
+        <Route
+          path="/pacientes"
+          element={
+            <Pacientes
+              pacientes={pacientes}
+              pacienteAtualId={pacienteAtualId}
+              afericoes={afericoes}
+              onSalvar={salvarPaciente}
+              onEditar={editarPaciente}
+              onRemover={removerPaciente}
+              onSelecionar={escolherPaciente}
+            />
+          }
         />
-      )}
-      {pagina === 'afericoes' && (
-        <Afericoes
-          paciente={pacienteAtual}
-          afericoes={afericoesDoPaciente}
-          onSalvar={salvarAfericao}
-          onRemover={removerAfericao}
-          onIrPacientes={() => setPagina('pacientes')}
+        <Route
+          path="/afericoes"
+          element={
+            <Afericoes
+              paciente={pacienteAtual}
+              afericoes={afericoesDoPaciente}
+              onSalvar={salvarAfericao}
+              onRemover={removerAfericao}
+            />
+          }
         />
-      )}
-      {pagina === 'perfil' && (
-        <Perfil
-          paciente={pacienteAtual}
-          afericoes={afericoesDoPaciente}
-          onIrPacientes={() => setPagina('pacientes')}
+        <Route
+          path="/perfil"
+          element={
+            <Perfil paciente={pacienteAtual} afericoes={afericoesDoPaciente} />
+          }
         />
-      )}
-    </Layout>
+      </Route>
+      <Route path="*" element={<Navigate to={logado ? '/' : '/login'} replace />} />
+    </Routes>
   )
 }
-
-

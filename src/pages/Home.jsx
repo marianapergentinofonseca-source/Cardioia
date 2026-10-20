@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Activity, ClipboardPlus, Users } from 'lucide-react'
-import Card from './components/ui/Card.jsx'
+import Card from '../components/ui/Card.jsx'
 
 export default function Home({
   totalPacientes,

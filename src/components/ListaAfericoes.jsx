@@ -2,7 +2,7 @@ import { ClipboardList, Trash2 } from 'lucide-react'
 import { classificarPressao } from '../utils/classificarPressao.js'
 import { formatarData, rotuloContexto } from '../utils/formatar.js'
 import EstadoVazio from './ui/EstadoVazio.jsx'
-import Selo from '/ui/Selo.jsx'
+import Selo from './ui/Selo.jsx'
 
 export default function ListaAfericoes({ afericoes, onRemover }) {
   if (afericoes.length === 0) {

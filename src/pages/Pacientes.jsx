@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Users } from 'lucide-react'
 import FormPaciente from '../components/FormPaciente.jsx'
 import ListaPacientes from '../components/ListaPacientes.jsx'
-import Card from '/components/ui/Card.jsx'
+import Card from '../components/ui/Card.jsx'
 import ModalConfirmacao from '../components/ui/ModalConfirmacao.jsx'
 
 export default function Pacientes({
