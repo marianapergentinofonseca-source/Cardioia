@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
-import RotaProtegida from './components/RotaProtegida.jsx'
 import RotaProtegida from './components/RotaProtegida.jsx'
 import Home from './pages/Home.jsx'
 import Pacientes from './pages/Pacientes.jsx'
@@ -37,11 +35,6 @@ export default function App() {
 
   const usuarioAtual = usuarios.find((item) => item.id === sessaoUsuarioId) ?? null
   const logado = Boolean(usuarioAtual)
-  const navigate = useNavigate()
-  const local = useLocation()
-
-  const usuarioAtual = usuarios.find((item) => item.id === sessaoUsuarioId) ?? null
-  const logado = Boolean(usuarioAtual)
   const pacienteAtual = pacientes.find((item) => item.id === pacienteAtualId) ?? null
   const afericoesDoPaciente = afericoes.filter(
     (item) => item.pacienteId === pacienteAtualId,
@@ -49,12 +42,6 @@ export default function App() {
 
   useEffect(() => {
     const titulos = {
-      '/': 'CardioIA',
-      '/pacientes': 'Pacientes | CardioIA',
-      '/afericoes': 'Aferições | CardioIA',
-      '/perfil': 'Perfil | CardioIA',
-      '/login': 'Entrar | CardioIA',
-      '/cadastro': 'Criar acesso | CardioIA',
       '/': 'CardioIA',
       '/pacientes': 'Pacientes | CardioIA',
       '/afericoes': 'Aferições | CardioIA',
@@ -151,38 +138,6 @@ export default function App() {
               pacienteAtual={pacienteAtual}
             />
           }
-    <Routes>
-      <Route
-        path="/login"
-        element={logado ? <Navigate to="/" replace /> : <Login onEntrar={entrar} />}
-      />
-      <Route
-        path="/cadastro"
-        element={
-          logado ? <Navigate to="/" replace /> : <Cadastro onCadastrar={cadastrarUsuario} />
-        }
-      />
-      <Route
-        element={
-          <RotaProtegida logado={logado}>
-            <Layout
-              usuario={usuarioAtual}
-              pacienteAtual={pacienteAtual}
-              onSair={sair}
-            />
-          </RotaProtegida>
-        }
-      >
-        <Route
-          path="/"
-          element={
-            <Home
-              usuario={usuarioAtual}
-              totalPacientes={pacientes.length}
-              totalAfericoes={afericoes.length}
-              pacienteAtual={pacienteAtual}
-            />
-          }
         />
         <Route
           path="/pacientes"
@@ -208,26 +163,7 @@ export default function App() {
               onRemover={removerAfericao}
             />
           }
-        <Route
-          path="/afericoes"
-          element={
-            <Afericoes
-              paciente={pacienteAtual}
-              afericoes={afericoesDoPaciente}
-              onSalvar={salvarAfericao}
-              onRemover={removerAfericao}
-            />
-          }
         />
-        <Route
-          path="/perfil"
-          element={
-            <Perfil paciente={pacienteAtual} afericoes={afericoesDoPaciente} />
-          }
-        />
-      </Route>
-      <Route path="*" element={<Navigate to={logado ? '/' : '/login'} replace />} />
-    </Routes>
         <Route
           path="/perfil"
           element={
